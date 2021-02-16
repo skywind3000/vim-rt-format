@@ -23,8 +23,8 @@ Install the plugin with vim-plug:
 Plug 'skywind3000/vim-rt-format'
 
 " By default, it will be triggered by `ENTER` in insert mode.
-" set this to 1 to use `CTRL+ENTER` instead, without changing 
-" default `ENTER` behavior.
+" set this to 1 to use `CTRL+ENTER` instead, and keep the  
+" default `ENTER` behavior unchanged.
 let g:rtf_ctrl_enter = 0
 
 " Enable formatting when leaving insert mode
