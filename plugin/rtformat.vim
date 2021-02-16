@@ -1,9 +1,9 @@
 "======================================================================
 "
-" rtformat.vim - Format current line on Enter
+" rtformat.vim - Prettify current line on Enter !!
 "
 " Created by skywind on 2021/02/13
-" Last Modified: 2021/02/13 22:57:28
+" Last Modified: 2021/02/17 02:01
 "
 "======================================================================
 
@@ -12,7 +12,17 @@
 "----------------------------------------------------------------------
 " settings
 "----------------------------------------------------------------------
+
+" python version: one of 0, 2 and 3
 let g:rtf_python = get(g:, 'rtf_python', 0)
+
+" By default, it will be triggered by `ENTER` in insert mode.
+" set this to 1 to map `CTRL+ENTER` instead, without changing
+" default `ENTER` behavior
+let g:rtf_ctrl_enter = get(g:, 'rtf_ctrl_enter', 0)
+
+" Enable formatting when leaving insert mode
+let g:rtf_on_insert_leave = get(g:, 'rtf_on_insert_leave', 1)
 
 
 "----------------------------------------------------------------------
@@ -66,7 +76,6 @@ function! s:check_python()
 	let code = ['__i = 100']
 	let code += ['try:']
 	let code += ['    import autopep8']
-	" let code += ['    import yapf']
 	let code += ['    __i = 1']
 	let code += ['except ImportError:']
 	let code += ['    __i = 0']
@@ -106,8 +115,15 @@ let s:pep8_python += ['E', 'W']
 " language maps
 "----------------------------------------------------------------------
 let s:enable_ft = {"python":1, "lua":1, "java":1, "javascript":1, 
-			\ "json":1, "actionscript":1, 
+			\ "json":1, "actionscript":1, "ruby": 1,
 			\ }
+
+
+"----------------------------------------------------------------------
+" internal variables
+"----------------------------------------------------------------------
+let s:enable_ctrl_enter = 0
+let s:on_insert_leave = 0
 
 
 "----------------------------------------------------------------------
@@ -149,14 +165,55 @@ function! RealTimeFormatCode()
 		let text = s:format_line(body)
 		let b:rtformat_text = text
 		let hr = pumvisible()? "\<c-y>" : ""
+		let hr .= "\<c-\>\<c-o>:let b:rtformat_insert_leave=1\<cr>"
 		let hr .= "\<c-g>u\<esc>S"
 		let hr .= "\<c-r>=b:rtformat_text\<cr>"
+		let hr .= "\<c-\>\<c-o>:let b:rtformat_insert_leave=0\<cr>"
 		let hr .= "\<c-r>=\"\\n\"\<cr>"
 		return hr
 	endif
 	let text = pumvisible()? "\<c-y>" : ""
 	let b:rtformat_text = "\r"
 	return text . "\<c-r>=b:rtformat_text\<cr>"
+endfunc
+
+
+"----------------------------------------------------------------------
+" Autocmd
+"----------------------------------------------------------------------
+function! s:InsertLeave()
+	if g:rtf_on_insert_leave == 0
+		return 0
+	endif
+	if get(b:, 'rtformat_insert_leave', 0) != 0
+		return 0
+	endif
+	if mode(1) =~ 'i'
+		return 0
+	endif
+	let line = getline('.')
+	let head = matchstr(line, '^\s*')
+	let body = matchstr(line, '^\s*\zs.*$')
+	let text = s:format_line(body)
+	if body == text
+		return 0
+	endif
+	let lines = split(text, "\n", 1)
+	let ln = line('.')
+	let pos = 0
+	let b:rtformat_insert_leave = 1
+	while pos < len(lines)
+		if pos == 0
+			call setline(ln, head . lines[0])
+			exec "normal! $"
+		else
+			call append('.', head . lines[pos])
+			exec "normal! j$"
+		endif
+		let pos += 1
+	endwhile
+	let b:rtformat_insert_leave = 0
+	return 0
 endfunc
 
 
@@ -185,9 +242,20 @@ function! s:RTFormatEnable()
 	if s:check_enable() == 0
 		return 0
 	endif
-	silent! iunmap <buffer> <cr>
-	imap <silent><buffer><expr> <cr> RealTimeFormatCode()
+	if g:rtf_ctrl_enter == 0
+		silent! iunmap <buffer> <cr>
+		imap <silent><buffer><expr> <cr> RealTimeFormatCode()
+		let s:enable_ctrl_enter = 0
+	else
+		silent! iunmap <buffer> <c-cr>
+		imap <silent><buffer><expr> <c-cr> RealTimeFormatCode()
+		let s:enable_ctrl_enter = 1
+	endif
 	let b:rtf_enable = 1
+	augroup RTFormatGroup
+		au!
+		au InsertLeave * call s:InsertLeave()
+	augroup END
 	redraw
 	echohl TODO
 	echo "RTFormat is enabled in current buffer, exit with :RTFormatDisable"
@@ -200,12 +268,19 @@ function! s:RTFormatDisable()
 		return 0
 	endif
 	if get(b:, 'rtf_enable', 0) != 0
-		silent! iunmap <buffer> <cr>
+		if s:enable_ctrl_enter == 0
+			silent! iunmap <buffer> <cr>
+		else
+			silent! iunmap <buffer> <c-cr>
+		endif
 	endif
 	redraw
 	echohl TODO
 	echo "RTFormat is disabled in current buffer"
 	echohl None
+	augroup RTFormatGroup
+		au!
+	augroup END
 	let b:rtf_enable = 0
 endfunc
 
@@ -218,12 +293,12 @@ command! -nargs=0 RTFormatDisable call s:RTFormatDisable()
 "----------------------------------------------------------------------
 
 if get(g:, 'rtformat_auto', 0)
-	augroup RTFormatGroup
+	augroup RTFormatGroup2
 		au!
 		autocmd FileType python silent RTFormatEnable
 	augroup END
 else
-	augroup RTFormatGroup
+	augroup RTFormatGroup2
 		au!
 	augroup END
 endif
