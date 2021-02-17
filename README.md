@@ -2,7 +2,7 @@
 
 Format current line immediately in INSERT mode as soon as you press ENTER:
 
-![picture](https://github.com/skywind3000/images/raw/master/p/pep/rtformat_2.gif)
+![picture](https://github.com/skywind3000/images/raw/master/p/pep/rtformat_4.gif)
 
 ## Features
 
