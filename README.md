@@ -6,11 +6,11 @@ Format current line immediately in INSERT mode as soon as you press ENTER:
 
 ## Features
 
-- Format current line in real-time when you press ENTER.
+- Format the current line in real-time when you press ENTER.
 - Seamless, no need to stop your work to run an extra command like `gq` or `:Neoformat`.
-- When you are focusing on editing, everything is done without pay extra attention.
+- When you are focusing on editing, everything is done without paying extra attention.
 - No external process (eg. LSP servers) dependencies.
-- Supported languages including: python, lua, ruby and javascript.
+- Supported languages including Python, Lua, Ruby, and Javascript.
 
 ## Requirements
 
