@@ -44,5 +44,10 @@ Then you go.
 
 ## Credit
 
-TODO
+Some of my other plugins may interest you:
+
+- [asynctasks.vim](https://github.com/skywind3000/asynctasks.vim): Modern Task System for Project Building, Testing and Deploying !! 
+- [vim-quickui](https://github.com/skywind3000/vim-quickui): The missing UI extensions for Vim 8.2 (and NeoVim 0.4) !! 
+- [vim-auto-popup](https://github.com/skywind3000/vim-auto-popmenu): Display the Completion Menu Automantically (next AutoComplPop) !! 
+
 
