@@ -44,7 +44,7 @@ Then you go.
 
 ## Credit
 
-Some of my other plugins may interest you:
+Some of my other plugins may also interest you:
 
 - [asynctasks.vim](https://github.com/skywind3000/asynctasks.vim): Modern Task System for Project Building, Testing and Deploying !! 
 - [vim-quickui](https://github.com/skywind3000/vim-quickui): The missing UI extensions for Vim 8.2 (and NeoVim 0.4) !! 
