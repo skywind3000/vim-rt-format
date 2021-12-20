@@ -244,11 +244,11 @@ function! s:RTFormatEnable()
 	endif
 	if g:rtf_ctrl_enter == 0
 		silent! iunmap <buffer> <cr>
-		imap <silent><buffer><expr> <cr> RealTimeFormatCode()
+		inoremap <silent><buffer><expr> <cr> RealTimeFormatCode()
 		let s:enable_ctrl_enter = 0
 	else
 		silent! iunmap <buffer> <c-cr>
-		imap <silent><buffer><expr> <c-cr> RealTimeFormatCode()
+		inoremap <silent><buffer><expr> <c-cr> RealTimeFormatCode()
 		let s:enable_ctrl_enter = 1
 	endif
 	let b:rtf_enable = 1
